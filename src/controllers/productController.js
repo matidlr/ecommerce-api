@@ -66,7 +66,7 @@ if(producttImage > maxSize) {
     'Please upload image smaller than 1MB'
   );
 }
-const imagePath = path.join(_dirname,'../public/uploads' + `${productImage.name}`);
+const imagePath = path.join(_dirname,'../public/uploads/' + `${productImage.name}`);
 await productImage.mv(imagePath);
 res.status(StatusCodes.OK).json({image:`/uploads/${productImage.name}`})
 };
