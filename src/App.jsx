@@ -1,5 +1,4 @@
 const dotenv = require('dotenv').config();
-
 // express
 
 const express = require('express');
@@ -23,15 +22,27 @@ const orderRouter = require('./routes/orderRoutes');
 const notFoundMiddleware = require('./middleware/not-found');
 const errorHandlerMiddleware = require('./middleware/error-handler');
 
-app.use(morgan('tiny'));
+app.set('trust proxy', 1);
+// limitar las req de cada ip
+app.use(
+  rateLimiter({
+    windowsMs: 15 * 60 * 1000,
+    max: 60,
+  })
+);
+
+app.use(helmet()); //seguridad en response headers
+app.use(cors()); //para acceder desde diferentes dominios, recuerda que las cookies funcionará solo si el frontend tiene el mismo dominio
+app.use(xss()); //para sanitizar los inputs del usuario
+app.use(mongoSanitize()); //para inyecciones mongo
+
+// app.use(morgan('tiny'));
 app.use(express.json());
 app.use(cookieParser(process.env.JWT_SECRET));
 app.use(express.static('./public'));
 app.use(fileUpload());
 
-app.get('/api/v1', (req, res) => {
-  res.send('e-commerce api')
-});
+
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
